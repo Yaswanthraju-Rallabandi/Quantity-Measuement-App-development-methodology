@@ -1,6 +1,6 @@
 public class Quantity {
 
-    // Enum (base unit = FEET)
+    // Enum (base = FEET)
     enum LengthUnit {
         FEET(1.0),
         INCHES(1.0 / 12.0),
@@ -42,33 +42,44 @@ public class Quantity {
             return unit.toFeet(value);
         }
 
-        // Convert to another unit
-        public QuantityLength convertTo(LengthUnit target) {
-            double feet = toFeet();
-            double converted = target.fromFeet(feet);
-            return new QuantityLength(converted, target);
-        }
-
-        // 🔹 UC6: ADDITION METHOD
-        public QuantityLength add(QuantityLength other) {
-            if (other == null)
-                throw new IllegalArgumentException("Other quantity cannot be null");
-
-            double sumFeet = this.toFeet() + other.toFeet();
-
-            double resultValue = this.unit.fromFeet(sumFeet);
-            return new QuantityLength(resultValue, this.unit);
-        }
-
-        // Static version (optional)
-        public static QuantityLength add(QuantityLength a, QuantityLength b, LengthUnit targetUnit) {
-            if (a == null || b == null || targetUnit == null)
-                throw new IllegalArgumentException("Invalid input");
+        // 🔹 PRIVATE HELPER (DRY)
+        private static QuantityLength addInternal(
+                QuantityLength a,
+                QuantityLength b,
+                LengthUnit targetUnit) {
 
             double sumFeet = a.toFeet() + b.toFeet();
             double result = targetUnit.fromFeet(sumFeet);
 
             return new QuantityLength(result, targetUnit);
+        }
+
+        // 🔹 UC6 (old method - keeps compatibility)
+        public QuantityLength add(QuantityLength other) {
+            if (other == null)
+                throw new IllegalArgumentException("Other cannot be null");
+
+            return addInternal(this, other, this.unit);
+        }
+
+        // 🔹 UC7 (NEW - explicit target unit)
+        public QuantityLength add(QuantityLength other, LengthUnit targetUnit) {
+            if (other == null || targetUnit == null)
+                throw new IllegalArgumentException("Invalid input");
+
+            return addInternal(this, other, targetUnit);
+        }
+
+        // 🔹 STATIC VERSION
+        public static QuantityLength add(
+                QuantityLength a,
+                QuantityLength b,
+                LengthUnit targetUnit) {
+
+            if (a == null || b == null || targetUnit == null)
+                throw new IllegalArgumentException("Invalid input");
+
+            return addInternal(a, b, targetUnit);
         }
 
         @Override
@@ -87,33 +98,19 @@ public class Quantity {
         }
     }
 
-    // MAIN METHOD (fixes your error)
+    // MAIN METHOD
     public static void main(String[] args) {
 
-        QuantityLength q1 = new QuantityLength(1.0, LengthUnit.FEET);
-        QuantityLength q2 = new QuantityLength(12.0, LengthUnit.INCHES);
+        QuantityLength a = new QuantityLength(1.0, LengthUnit.FEET);
+        QuantityLength b = new QuantityLength(12.0, LengthUnit.INCHES);
 
-        QuantityLength result1 = q1.add(q2);
-        System.out.println("1 ft + 12 in = " + result1);
+        System.out.println("Feet result: " + a.add(b, LengthUnit.FEET));
+        System.out.println("Inches result: " + a.add(b, LengthUnit.INCHES));
+        System.out.println("Yards result: " + a.add(b, LengthUnit.YARDS));
 
-        QuantityLength q3 = new QuantityLength(12.0, LengthUnit.INCHES);
-        QuantityLength q4 = new QuantityLength(1.0, LengthUnit.FEET);
+        QuantityLength c = new QuantityLength(2.54, LengthUnit.CENTIMETERS);
+        QuantityLength d = new QuantityLength(1.0, LengthUnit.INCHES);
 
-        QuantityLength result2 = q3.add(q4);
-        System.out.println("12 in + 1 ft = " + result2);
-
-        QuantityLength q5 = new QuantityLength(1.0, LengthUnit.YARDS);
-        QuantityLength q6 = new QuantityLength(3.0, LengthUnit.FEET);
-
-        System.out.println("1 yard + 3 feet = " + q5.add(q6));
-
-        QuantityLength q7 = new QuantityLength(2.54, LengthUnit.CENTIMETERS);
-        QuantityLength q8 = new QuantityLength(1.0, LengthUnit.INCHES);
-
-        System.out.println("2.54 cm + 1 inch = " + q7.add(q8));
-
-        // static add with target unit
-        QuantityLength result3 = QuantityLength.add(q1, q2, LengthUnit.INCHES);
-        System.out.println("Result in inches: " + result3);
+        System.out.println("CM result: " + c.add(d, LengthUnit.CENTIMETERS));
     }
 }
