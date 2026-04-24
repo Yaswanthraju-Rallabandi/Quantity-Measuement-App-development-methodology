@@ -1,18 +1,18 @@
 public class Quantity {
 
-    // Inner class for Feet measurement
+    // Feet class
     static class Feet {
         private final double value;
 
-        // Constructor
         public Feet(double value) {
+            if (!Double.isFinite(value))
+                throw new IllegalArgumentException("Invalid feet value");
             this.value = value;
         }
 
-        // Override equals method
         @Override
         public boolean equals(Object obj) {
-            if (this == obj) return true; // same reference
+            if (this == obj) return true;
             if (obj == null || getClass() != obj.getClass()) return false;
 
             Feet other = (Feet) obj;
@@ -20,16 +20,46 @@ public class Quantity {
         }
     }
 
-    // Main method for execution
+    // Inches class
+    static class Inches {
+        private final double value;
+
+        public Inches(double value) {
+            if (!Double.isFinite(value))
+                throw new IllegalArgumentException("Invalid inches value");
+            this.value = value;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+
+            Inches other = (Inches) obj;
+            return Double.compare(this.value, other.value) == 0;
+        }
+    }
+
+    // Static methods for equality checks
+    public static boolean compareFeet(double v1, double v2) {
+        Feet f1 = new Feet(v1);
+        Feet f2 = new Feet(v2);
+        return f1.equals(f2);
+    }
+
+    public static boolean compareInches(double v1, double v2) {
+        Inches i1 = new Inches(v1);
+        Inches i2 = new Inches(v2);
+        return i1.equals(i2);
+    }
+
+    // Main method
     public static void main(String[] args) {
 
-        Feet f1 = new Feet(1.0);
-        Feet f2 = new Feet(1.0);
-        Feet f3 = new Feet(2.0);
+        System.out.println("Feet Equality (1.0 vs 1.0): " +
+                compareFeet(1.0, 1.0)); // true
 
-        System.out.println("1.0 ft vs 1.0 ft: " + f1.equals(f2)); // true
-        System.out.println("1.0 ft vs 2.0 ft: " + f1.equals(f3)); // false
-        System.out.println("Same reference: " + f1.equals(f1));   // true
-        System.out.println("Null check: " + f1.equals(null));     // false
+        System.out.println("Inches Equality (1.0 vs 1.0): " +
+                compareInches(1.0, 1.0)); // true
     }
 }
